@@ -1,0 +1,7 @@
+<div class="text-center mt-5 ptb-">
+    {% for image in product.images.all %}
+    <div class="product_detail-slider_block">
+        <img class="" src="{{ image.image.url}}" width="500" alt="">
+    </div>
+    {% endfor %}
+</div>
