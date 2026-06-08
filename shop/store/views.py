@@ -7,7 +7,6 @@ from django.contrib.auth import login, logout
 from django.contrib import messages
 
 
-
 class ProductList(ListView):
     model = Product
     context_object_name = 'categories'
@@ -35,7 +34,7 @@ class CategoryView(ListView):
 
     def get_queryset(self):
         sort_field = self.request.GET.get('sort')
-        type_field = self.request.GET.get('type') # Subcategoriyani oladi !
+        type_field = self.request.GET.get('type')  # Subcategoriyani oladi !
 
         if type_field:
             products = Product.objects.filter(category__slug=type_field)
@@ -57,10 +56,10 @@ class ProductDetailView(DetailView):
         context = super().get_context_data()
         product = Product.objects.get(slug=self.kwargs['slug'])
         context['title'] = f'{product.title}'
-        products =Product.objects.all()
-        data =[]
+        products = Product.objects.all()
+        data = []
         for i in range(4):
-            random_index = randint(0, len(products) -1)
+            random_index = randint(0, len(products) - 1)
             p = products[random_index]
             if p not in data:
                 data.append(p)
@@ -72,6 +71,7 @@ class ProductDetailView(DetailView):
 
         return context
 
+
 def save_review(request, product_id):
     form = ReviewForms(data=request.POST)
     if form.is_valid():
@@ -82,7 +82,8 @@ def save_review(request, product_id):
         review.save()
     else:
         pass
-    return redirect('product_detail',product.slug)
+    return redirect('product_detail', product.slug)
+
 
 def login_registration(request):
     context = {
@@ -93,31 +94,42 @@ def login_registration(request):
     }
     return render(request, 'store/login_register.html', context)
 
+
 def user_login(request):
     form = LoginForm(data=request.POST)
     if form.is_valid():
         user = form.get_user()
         login(request, user)
-        messages.success(request,'You are now logged in!')
-        return redirect('product_list')
-    else:
-        messages.error(request,'Please correct the error below.')
-        return redirect('login_registration')
-
-
-def user_logout(request):
-    logout(request)
-    messages.warning(request,'You are now logged out!')
-    return redirect('login_registration')
-
-
-
-def register(request):
-    form = RegistrationForm(data=request.POST)
-    if form.is_valid():
-        form.save()
         messages.success(request, 'You are now logged in!')
         return redirect('product_list')
     else:
         messages.error(request, 'Please correct the error below.')
         return redirect('login_registration')
+
+
+def user_logout(request):
+    logout(request)
+    messages.warning(request, 'You are now logged out!')
+    return redirect('login_registration')
+
+
+def register(request):
+    if request.method == 'POST':
+        form = RegistrationForm(request.POST)
+
+        if form.is_valid():
+            user = form.save()
+
+            messages.success(
+                request,
+                'Account created successfully!'
+            )
+
+            return redirect('product_list')
+
+        messages.error(
+            request,
+            'Please correct the errors below.'
+        )
+
+    return redirect('login_registration')
